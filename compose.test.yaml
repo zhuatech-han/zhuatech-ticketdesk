@@ -1,0 +1,30 @@
+# Copyright 2026 上海如静知华信息科技有限公司 · https://www.zhuatech.cn/ · 微信 zhuatech / zhuatech2
+# Standalone disposable test environment. Never merge with production Compose.
+services:
+  mysql:
+    image: mysql:8.4
+    tmpfs: ['/var/lib/mysql:size=768m']
+    environment:
+      MYSQL_DATABASE: zhuatech_ticketdesk
+      MYSQL_USER: ticketdesk
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:?set private test password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set private test root password}
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql -h127.0.0.1 -u"$$MYSQL_USER" -N -e "SELECT 1" "$$MYSQL_DATABASE"']
+      start_period: 3m
+      interval: 5s
+      timeout: 5s
+      retries: 60
+  backend-tests:
+    image: maven:3.9.16-eclipse-temurin-21
+    working_dir: /work
+    volumes: ['./backend:/work','maven-cache:/root/.m2']
+    command: [mvn, -B, -q, spotless:check, test]
+    environment:
+      CORE_TEST_DATABASE_URL: jdbc:mariadb://mysql:3306/zhuatech_ticketdesk?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&allowLocalInfile=false&sslMode=trust
+      DATABASE_USER: ticketdesk
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?set private test password}
+    depends_on:
+      mysql: {condition: service_healthy}
+volumes:
+  maven-cache:

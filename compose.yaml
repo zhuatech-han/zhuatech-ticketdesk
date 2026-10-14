@@ -1,0 +1,59 @@
+# Copyright 2026 上海如静知华信息科技有限公司 · https://www.zhuatech.cn/ · 微信 zhuatech / zhuatech2
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: zhuatech_ticketdesk
+      MYSQL_USER: ticketdesk
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:?set DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD}
+    volumes: [mysql-data:/var/lib/mysql]
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql --connect-timeout=5 -h127.0.0.1 -u"$$MYSQL_USER" -N -e "SELECT 1" "$$MYSQL_DATABASE"']
+      interval: 5s
+      timeout: 5s
+      # Allow first-volume initialization before ordinary readiness retries.
+      start_period: 20m
+      retries: 60
+    restart: unless-stopped
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-jdbc:mariadb://mysql:3306/zhuatech_ticketdesk?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&allowLocalInfile=false&sslMode=trust}
+      DATABASE_USER: ${DATABASE_USER:-ticketdesk}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?set DATABASE_PASSWORD}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      TICKET_SIGNING_KEY: ${TICKET_SIGNING_KEY:?set TICKET_SIGNING_KEY}
+      PAYMENT_MODE: ${PAYMENT_MODE:-DEMO}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8160}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      SCHEDULER_ENABLED: ${SCHEDULER_ENABLED:-true}
+      MAIL_ENABLED: ${MAIL_ENABLED:-false}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+    depends_on:
+      mysql: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://localhost:8080/actuator/health/readiness]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    restart: unless-stopped
+  frontend:
+    build: ./frontend
+    ports: ['${BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-8160}:8080']
+    depends_on:
+      backend: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, wget, -q, --spider, http://127.0.0.1:8080/]
+      interval: 10s
+      retries: 10
+    restart: unless-stopped
+volumes:
+  mysql-data:
