@@ -4,7 +4,7 @@
 
 后端：mvn -B -f backend/pom.xml spotless:check test。前端在frontend执行npm ci --no-audit --no-fund、npm run format:check、npm run lint、npm test、npm run build。Docker构建亦执行测试，不使用skipTests。
 
-37项后端（13事务并发、13HTTP身份/业务、3签名付款数据库流程、5网关合同、3票码规则），17项前端。支付合同测试使用明确假的QA凭据及模拟HTTP响应，真实验签、数据库状态和金额绑定被执行，但不代表Stripe真实商户验收。
+38项后端（13事务并发、14HTTP身份/业务及默认健康、3签名付款数据库流程、5网关合同、3票码规则），17项前端。支付合同测试使用明确假的QA凭据及模拟HTTP响应，真实验签、数据库状态和金额绑定被执行，但不代表Stripe真实商户验收。
 
 真实MySQL补充：在独立非生产项目使用docker compose -p ticketdesk-tests -f compose.test.yaml run --rm backend-tests，完成后docker compose -p ticketdesk-tests -f compose.test.yaml down -v。该文件独立使用临时MySQL，不得与生产Compose合并。
 

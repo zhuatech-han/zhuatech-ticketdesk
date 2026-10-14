@@ -8,7 +8,7 @@
 
 STRIPE要求收款服务支持地区的商户、服务端密钥及webhook端点；[官方地区清单](https://stripe.com/global)未列中国大陆。连接/api/payments/stripe/webhook，订阅checkout.session.completed及checkout.session.async_payment_succeeded，按[Stripe回调](https://docs.stripe.com/webhooks)核对实际版本与合同。适配器只使用托管Checkout卡支付，未集成微信、支付宝或多商户结算。
 
-启用邮件需MAIL_ENABLED=true及有效SMTP参数、MAIL_FROM；TLS及超时已配置。真实SMTP投递、真实银行收退款和实体手机摄像头必须独立验收。默认DEMO不执行银行操作，默认邮件禁用。
+启用邮件需MAIL_ENABLED=true及有效SMTP参数、MAIL_FROM；TLS及超时已配置。真实SMTP投递、真实银行收退款和实体手机摄像头必须独立验收。默认DEMO不执行银行操作，默认邮件禁用。邮件健康检查跟随MAIL_ENABLED；关闭邮件时不探测SMTP，启用后总健康检查也会核对邮件连通。核心就绪检查始终包含数据库。
 
 MySQL使用命名持久卷。首次空库执行V1身份、V2票务内核、V3活动与队列迁移，JPA持续校验；启动只初始化管理员、岗位、目录、类别和参数，不插入虚构活动或客户。重启不覆盖账号密码。追加新版本SQL，不改已执行迁移；升级先备份并在独立目标验证。
 
