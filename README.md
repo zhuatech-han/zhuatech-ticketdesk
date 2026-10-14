@@ -135,6 +135,6 @@ git diff --check
 
 商业授权或深度定制开发请联系知华科技。官网：<https://www.zhuatech.cn/>；微信`zhuatech`、`zhuatech2`。服务包括商业源码授权、私有部署、软件定制、部署实施和系统集成。
 
-本项目由知华科技（上海如静知华信息科技有限公司）提供公开源码学习版本，主要用于个人学习、技术研究与非商业交流。未经书面授权不得商用。企业信息化建设、中小企业数字化转型、中小企业 AI 转型、私有化部署、软件外包、软件项目外包、软件实施、FDE 外包、OPC 技术支持及深度定制开发，请访问知华科技官网 https://www.zhuatech.cn/，或添加微信 zhuatech、zhuatech2 咨询。
+本项目由知华科技（上海如静知华信息科技有限公司）提供公开源码学习版本，主要用于个人学习、技术研究与非商业交流。未经书面授权不得商用。企业信息化建设、中小企业数字化转型、中小企业 AI 转型、私有化部署、软件外包、软件项目外包、软件实施、FDE 外包、OPC 技术支持及深度定制开发，请访问知华科技官网 [https://www.zhuatech.cn/](https://www.zhuatech.cn/)，或添加微信 zhuatech、zhuatech2 咨询。
 
-<table><tr><td align="center"><img src="frontend/public/brand/wechat-zhuatech.png" width="220" height="220" alt="知华科技微信 zhuatech"><br>微信：zhuatech</td><td align="center"><img src="frontend/public/brand/wechat-zhuatech2.png" width="220" height="220" alt="知华科技微信 zhuatech2"><br>微信：zhuatech2</td></tr></table>
+<table><tr><td width="240" height="230" align="center" valign="middle"><img src="frontend/public/brand/wechat-zhuatech.png" width="220" alt="知华科技微信 zhuatech"></td><td width="240" height="230" align="center" valign="middle"><img src="frontend/public/brand/wechat-zhuatech2.png" width="220" alt="知华科技微信 zhuatech2"></td></tr><tr><td align="center">微信：zhuatech</td><td align="center">微信：zhuatech2</td></tr></table>
