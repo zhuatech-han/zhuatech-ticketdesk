@@ -112,7 +112,7 @@ python3 scripts/release-check.py
 git diff --check
 ```
 
-37 backend and 17 frontend tests; real MySQL and complete DEMO HTTP workflows supplement H2. Image builds execute tests without skipping. Validate empty-schema startup, health, login, 200-seat workflow, personal scopes, frozen amount, duplicate issuance/admission, refund/notification queues, reports and persistence. Acceptance records describe actual results; physical devices, production load and real third-party environments require separate validation.
+38 backend and 17 frontend tests; real MySQL and complete DEMO HTTP workflows supplement H2. Image builds execute tests without skipping. Validate empty-schema startup, health, login, 200-seat workflow, personal scopes, frozen amount, duplicate issuance/admission, refund/notification queues, reports and persistence. Acceptance records describe actual results; physical devices, production load and real third-party environments require separate validation.
 
 For502 wait for backend health; for empty events check publication/staff assignment; for sign-in check initial private credentials. Unknown writes require refreshing and verifying before retry. Unconfigured SMTP is not sent mail. Resolve official package-source download failures without skipping tests. Deployers maintain HTTPS, throttling, backup, monitoring, privacy notice and go-live review. [Security](docs/SECURITY.md), [testing](docs/TESTING.md), [API](docs/API.md), [third-party declarations](docs/THIRD_PARTY.md).
 
