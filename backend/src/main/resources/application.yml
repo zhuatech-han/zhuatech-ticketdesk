@@ -49,6 +49,9 @@ server:
   error:
     include-message: never
 management:
+  health:
+    mail:
+      enabled: ${MAIL_ENABLED:false}
   endpoint:
     health:
       probes:
