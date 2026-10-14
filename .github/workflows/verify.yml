@@ -1,0 +1,51 @@
+# Copyright 2026 上海如静知华信息科技有限公司 · https://www.zhuatech.cn/ · 微信 zhuatech / zhuatech2
+name: Verify TicketDesk
+on: [push, pull_request, workflow_dispatch]
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8160605e0321c36c376e2e6 # v6.0.1
+        with: {distribution: temurin, java-version: '21', cache: maven, cache-dependency-path: backend/pom.xml}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: {node-version: '24.19.0', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - name: Backend format, unit and integration tests
+        run: mvn -B -f backend/pom.xml spotless:check verify
+      - name: Frontend format, lint, tests and build
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm run format:check
+          npm run lint
+          npm test
+          npm run build
+      - name: Initialize private CI environment
+        run: python3 scripts/init-env.py
+      - name: Fresh MySQL build and startup
+        run: |
+          docker compose -p ticketdesk-ci config --quiet
+          docker compose -p ticketdesk-ci up -d --build --wait --wait-timeout 1800
+      - name: Real MySQL workflow and permissions
+        run: |
+          curl --fail http://127.0.0.1:8160/actuator/health
+          python3 scripts/quality.py
+          docker compose -p ticketdesk-ci restart backend
+          docker compose -p ticketdesk-ci up -d --wait --wait-timeout 1800
+          python3 scripts/verify-persistence.py --state output/ticketdesk-quality-state.json
+      - name: Database backup and isolated restore
+        run: |
+          python3 scripts/backup.py --project ticketdesk-ci --output /tmp/ticketdesk-ci.zip
+          python3 -c "from pathlib import Path;p=Path('.env');Path('/tmp/ticketdesk-restore.env').write_text(p.read_text().replace('WEB_PORT=8160','WEB_PORT=8161').replace('PUBLIC_URL=http://localhost:8160','PUBLIC_URL=http://localhost:8161').replace('SCHEDULER_ENABLED=true','SCHEDULER_ENABLED=false'))"
+          python3 scripts/restore.py /tmp/ticketdesk-ci.zip --project ticketdesk-ci-restore --env-file /tmp/ticketdesk-restore.env
+          python3 scripts/verify-persistence.py --state output/ticketdesk-quality-state.json --base http://127.0.0.1:8161
+      - name: Release assets and source checks
+        run: python3 scripts/release-check.py
+      - name: Cleanup this run only
+        if: always()
+        run: |
+          docker compose -p ticketdesk-ci down -v
+          if [ -f /tmp/ticketdesk-restore.env ]; then docker compose --env-file /tmp/ticketdesk-restore.env -p ticketdesk-ci-restore down -v; fi
+          rm -f /tmp/ticketdesk-ci.zip /tmp/ticketdesk-restore.env
