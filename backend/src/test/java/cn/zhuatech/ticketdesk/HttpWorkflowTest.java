@@ -58,6 +58,12 @@ class HttpWorkflowTest {
   long gateId;
   Map<String, Object> eventBody;
 
+  @Test
+  void disabledOptionalMailDoesNotMakeCoreHealthFail() throws Exception {
+    var response = request(get("/actuator/health"), null, null, 200);
+    assertEquals("UP", read(response).path("status").asText());
+  }
+
   JsonNode read(MvcResult result) {
     try {
       return json.readTree(result.getResponse().getContentAsString());
